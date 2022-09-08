@@ -79,3 +79,4 @@ class Bot:
                 
             elif exit_type == "EB":
                 exit_trade(self.tradingViewInfo[0], 'buy', client)
+
