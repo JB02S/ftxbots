@@ -2,10 +2,7 @@ from flask import Flask, request, abort
 from bots import bot1
 
 app = Flask(__name__)
-confirmationState = input("Most recent type of confirmation signal? UT or DT?")
-catcherState = input("Trend catcher state? CD for red or CU for green.")
-bot = bot1.Bot(confirmationState, catcherState)
-print(bot.botInfo)
+bot = bot1.Bot()
 
 
 @app.route('/webhook', methods=['POST'])

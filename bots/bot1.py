@@ -22,7 +22,6 @@ class Bot:
         
         for i in client.get_balances():
             self.port += i['total']
-        print(self.port)
 
     def update(self, data):
 
@@ -40,7 +39,6 @@ class Bot:
             exit_trade(self.tradingViewInfo[0], 'sell', client)
             
         elif (self.tradingViewInfo[1] == "DT" or self.tradingViewInfo[1] == "EB") and client.get_positions()[0]['size'] > 0:
-            print('yo')
             exit_trade(self.tradingViewInfo[0], 'buy', client)
 
         if self.tradingViewInfo[1] == "OU":
@@ -72,7 +70,6 @@ class Bot:
                        sl=sl, tp=tp, client=client)
 
     def handle_exit_signal(self, exit_type):
-        print(exit_type)
         if client.get_positions()[0]['size'] != 0:
             if exit_type == "ES":
                 exit_trade(self.tradingViewInfo[0], 'sell', client)

@@ -25,7 +25,6 @@ def calc_pos_size(port, entry_price, side, acc_risk, sl):
 
 
 def exit_trade(market, side, client):
-    print(side)
     if side == 'sell':
         client.place_order(
             market=f'{market}-PERP',
@@ -35,7 +34,6 @@ def exit_trade(market, side, client):
             size=client.get_positions()[0]['size'] + client.get_positions()[0]['size'] * 2
         )
     elif side == 'buy':
-        print('yo')
         client.place_order(
             market=f'{market}-PERP',
             side="sell",
