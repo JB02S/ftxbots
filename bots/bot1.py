@@ -12,7 +12,7 @@ api_secret = os.getenv('api_secret_main')
 
 client = FtxClient(api_key=api_key, api_secret=api_secret, subaccount_name='bot1')
 
-logging.basicConfig(filename='bot.log', level=logging.INFO,
+logging.basicConfig(filename=os.path.dirname(os.path.abspath(__file__)) + '\\' +'bot.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:%(message)s')
 
 
