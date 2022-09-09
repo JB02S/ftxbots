@@ -22,6 +22,8 @@ def calc_pos_size(port: float, entry_price: float, side: str, acc_risk: float, s
 def exit_trade(market: str, side: str, client: FtxClient):
     assert side in ('buy', 'sell'), 'side must be buy or sell'
     assert any(i['name'] == f'{market}-PERP' for i in client.get_markets())
+    client.cancel_orders(market_name=f'{market}-PERP')
+
     if side == 'sell':
         client.place_order(
             market=f'{market}-PERP',
@@ -42,6 +44,9 @@ def exit_trade(market: str, side: str, client: FtxClient):
 
 def enter_buy(market: str, price: float, size: float, client: FtxClient, sl: float = None, tp: float = None):
     assert any(i['name'] == f'{market}-PERP' for i in client.get_markets())
+
+    client.cancel_orders(market_name=f'{market}-PERP')
+
     client.place_order(
         market=f'{market}-PERP',
         side="buy",
@@ -72,6 +77,9 @@ def enter_buy(market: str, price: float, size: float, client: FtxClient, sl: flo
 
 def enter_sell(market: str, price: float, size: float, client: FtxClient, sl: float = None, tp: float = None) -> None:
     assert any(i['name'] == f'{market}-PERP' for i in client.get_markets())
+
+    client.cancel_orders(market_name=f'{market}-PERP')
+
     client.place_order(
         market=f'{market}-PERP',
         side="sell",
