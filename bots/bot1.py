@@ -41,6 +41,11 @@ class Bot:
         self.tradingViewInfo = data.split()
         self.tradingViewInfo[0] = self.tradingViewInfo[0][:-4]
         self.tradingViewInfo[2] = int(self.tradingViewInfo[2])
+        pos = 0
+
+        for i in client.get_positions():
+            if i['future'] == f'{self.tradingViewInfo[0]}-PERP':
+                pos = i['size']
 
         if len(self.tradingViewInfo) == 4:
             if self.tradingViewInfo[1][0] == "C":
@@ -49,12 +54,12 @@ class Bot:
                 self.botInfo[0] = self.tradingViewInfo[1]
 
         if (self.tradingViewInfo[1] == "UT" or self.tradingViewInfo[1] == "ES") and\
-                client.get_positions()[0]['size'] < 0:
+                pos < 0:
             exit_trade(self.tradingViewInfo[0], 'sell', client)
-            logging.info('bot1 exit sell at: ' + self.tradingViewInfo[2])
+            logging.info('bot1 exit sell at: ', self.tradingViewInfo[2])
             
         elif (self.tradingViewInfo[1] == "DT" or self.tradingViewInfo[1] == "EB") and\
-                client.get_positions()[0]['size'] > 0:
+                pos > 0:
             exit_trade(self.tradingViewInfo[0], 'buy', client)
             logging.info('bot1 exit buy at: ' + self.tradingViewInfo[2])
 
