@@ -91,5 +91,3 @@ class Bot:
                        sl=sl, tp=tp, client=client)
 
             logging.info('bot1 exit sell at: ' + self.tradingViewInfo[2])
-
-print(client.get_open_orders(market='BTC-PERP'))
