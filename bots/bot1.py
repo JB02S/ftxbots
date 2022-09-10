@@ -96,3 +96,10 @@ class Bot:
                        sl=sl, tp=tp, client=client)
 
             logging.info('bot1 exit sell at: ', self.tradingViewInfo[2])
+
+
+def handle_webhook_data(data: str = None):
+    bot.update(data)
+
+
+bot = Bot()
