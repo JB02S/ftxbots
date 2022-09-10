@@ -109,5 +109,73 @@ def enter_sell(market: str, price: float, size: float, client: FtxClient, sl: fl
         )
 
 
+def update_sl(market: str, new_sl: float, client: FtxClient):
+    open_orders = client.get_conditional_orders(market=f'{market}-PERP')
+
+    for i in client.get_positions():
+        if i['future'] == f'{market}-PERP':
+            position = i
+
+    if position['side'] == 'buy':
+        for i in open_orders:
+            if i['type'] == 'stop':
+                client.cancel_order(order_id=i['id'])
+        client.place_conditional_order(
+            market=f'{market}-PERP',
+            side="sell",
+            size=position['size'] + (position['size'] * 2),
+            type='stop',
+            reduce_only=True,
+            trigger_price=new_sl
+        )
+
+    if position['side'] == 'sell':
+        for i in open_orders:
+            if i['type'] == 'stop':
+                client.cancel_order(order_id=i['id'])
+        client.place_conditional_order(
+            market=f'{market}-PERP',
+            side="buy",
+            size=position['size'] + (position['size'] * 2),
+            type='stop',
+            reduce_only=True,
+            trigger_price=new_sl
+        )
+
+
+def update_tp(market: str, new_tp: float, client: FtxClient):
+    open_orders = client.get_conditional_orders(market=f'{market}-PERP')
+
+    for i in client.get_positions():
+        if i['future'] == f'{market}-PERP':
+            position = i
+
+    if position['side'] == 'buy':
+        for i in open_orders:
+            if i['type'] == 'take_profit':
+                client.cancel_order(order_id=i['id'])
+        client.place_conditional_order(
+            market=f'{market}-PERP',
+            side="sell",
+            size=position['size'] + (position['size'] * 2),
+            type='take_profit',
+            reduce_only=True,
+            trigger_price=new_tp
+        )
+
+    if position['side'] == 'sell':
+        for i in open_orders:
+            if i['type'] == 'take_profit':
+                client.cancel_order(order_id=i['id'])
+        client.place_conditional_order(
+            market=f'{market}-PERP',
+            side="buy",
+            size=position['size'] + (position['size'] * 2),
+            type='take_profit',
+            reduce_only=True,
+            trigger_price=new_tp
+        )
+
+
 def set_acc_risk(acc_risk: float, bot) -> None:
     bot.accRisk = acc_risk
