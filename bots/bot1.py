@@ -90,4 +90,4 @@ class Bot:
             enter_sell(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
                        sl=sl, tp=tp, client=client)
 
-            logging.info('bot1 exit sell at: ' + self.tradingViewInfo[2])
+            logging.info('bot1 exit sell at: ', self.tradingViewInfo[2])
