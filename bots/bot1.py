@@ -40,8 +40,7 @@ class Bot:
             self.port += i['total']
 
     def update(self, data: str):
-
-        logging.info('bot1 received info from TV alert')
+        logging.info('bot1 received info from T V alert')
         self.tradingViewInfo = data.split()
         self.tradingViewInfo[0] = self.tradingViewInfo[0][:-4]
         self.tradingViewInfo[2] = int(self.tradingViewInfo[2])
@@ -60,12 +59,12 @@ class Bot:
         if (self.tradingViewInfo[1] == "UT" or self.tradingViewInfo[1] == "ES") and\
                 pos < 0:
             exit_trade(self.tradingViewInfo[0], 'sell', client)
-            logging.info('bot1 exit sell at: ', self.tradingViewInfo[2])
+            logging.info(f'bot1 exit sell at: {self.tradingViewInfo[2]}')
             
         elif (self.tradingViewInfo[1] == "DT" or self.tradingViewInfo[1] == "EB") and\
                 pos > 0:
             exit_trade(self.tradingViewInfo[0], 'buy', client)
-            logging.info('bot1 exit buy at: ' + self.tradingViewInfo[2])
+            logging.info(f'bot1 exit buy at: {self.tradingViewInfo[2]}')
 
         if self.tradingViewInfo[1] == "OU":
             self.check_trade()
@@ -91,7 +90,7 @@ class Bot:
             self.live_trades_info[self.tradingViewInfo[0]].append(self.tradingViewInfo[2])
             self.live_trades_info[self.tradingViewInfo[0]].append(None)
             self.live_trades_info[self.tradingViewInfo[0]].append('buy')
-            logging.info('bot1 entered buy at: ' + self.tradingViewInfo[2])
+            logging.info(f'bot1 entered buy at: {self.tradingViewInfo[2]}')
 
         elif self.botInfo[0] == "DT" and self.botInfo[1] == "CD" and self.tradingViewInfo[1] == "OD" and\
                 client.get_positions()[0]['size'] == 0:
@@ -101,15 +100,16 @@ class Bot:
                                      acc_risk=self.accRisk, sl=sl)
             enter_sell(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
                        sl=sl, tp=tp, client=client)
-            self.live_trades_info[self.tradingViewInfo[0]] = []
-            self.live_trades_info[self.tradingViewInfo[0]].append(self.tradingViewInfo[2])
-            self.live_trades_info[self.tradingViewInfo[0]].append(None)
+            self.live_trades_info[self.tradingViewInfo[0]] = [None, None, None]
+            self.live_trades_info[self.tradingViewInfo[0]][0] = self.tradingViewInfo[2]
             self.live_trades_info[self.tradingViewInfo[0]].append('sell')
-            logging.info('bot1 entered sell at: ', self.tradingViewInfo[2])
+            logging.info(f'bot1 entered sell at: {self.tradingViewInfo[2]}')
 
     def update_trade_info(self, market: str, price: float):
-        self.live_trades_info[market][1] = price
-        self.handle_trade_updates()
+        if market in self.live_trades_info:
+            self.live_trades_info[market][1] = price
+            self.handle_trade_updates()
+
 
     def remove_trade_info(self, market: str):
         self.live_trades_info.pop(market, None)
@@ -128,7 +128,6 @@ def handle_webhook_data(data: str = None):
 
 
 def live_trade_price_data(client: FtxClient):
-
     while True:
         for i in client.get_positions():
             if i['size'] > 0:
