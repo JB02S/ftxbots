@@ -128,7 +128,6 @@ def handle_webhook_data(data: str = None):
 
 
 def live_trade_price_data(client: FtxClient):
-    print('threadstart')
     while True:
         for i in client.get_positions():
             if i['size'] > 0:
