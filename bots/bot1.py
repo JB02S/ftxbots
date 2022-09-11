@@ -115,8 +115,9 @@ class Bot:
         self.live_trades_info.pop(market, None)
 
     def handle_trade_updates(self):
-        pass
-
+        for i in self.live_trades_info:
+            if (self.live_trades_info[i][1] - self.live_trades_info[i][0]) * 100 > 0.5:
+                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
         """for i in self.live_trades_info:
             if self.live_trades_info[i][1] >= self.SR_levels['R1'] and self.live_trades_info[2] == 'buy':
                 update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
