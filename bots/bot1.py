@@ -61,7 +61,7 @@ class Bot:
         elif (self.tradingViewInfo[1] == "DT" or self.tradingViewInfo[1] == "EB") and\
                 pos > 0:
             exit_trade(self.tradingViewInfo[0], 'buy', client)
-            logging.info('bot1 exit buy at: ' + self.tradingViewInfo[2])
+            logging.info('bot1 exit buy at: ', self.tradingViewInfo[2])
 
         if self.tradingViewInfo[1] == "OU":
             self.check_trade()
@@ -84,7 +84,7 @@ class Bot:
             enter_buy(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
                       sl=sl, tp=tp, client=client)
 
-            logging.info('bot1 entered buy at: ' + self.tradingViewInfo[2])
+            logging.info('bot1 entered buy at: ', self.tradingViewInfo[2])
 
         elif self.botInfo[0] == "DT" and self.botInfo[1] == "CD" and self.tradingViewInfo[1] == "OD" and\
                 client.get_positions()[0]['size'] == 0:
