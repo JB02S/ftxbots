@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 from ftx.tradingfunctions import *
 
-from ftx.sqlfunctions import insert_into_trade_table
+#from ftx.sqlfunctions import insert_into_trade_table
 
 load_dotenv()
 
