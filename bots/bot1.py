@@ -2,11 +2,12 @@ import os
 import logging
 import sys
 import threading
-import time
 
 from dotenv import load_dotenv
 
 from ftx.tradingfunctions import *
+
+from ftx.sqlfunctions import insert_into_trade_table
 
 load_dotenv()
 
@@ -110,17 +111,17 @@ class Bot:
             self.live_trades_info[market][1] = price
             self.handle_trade_updates()
 
-
     def remove_trade_info(self, market: str):
         self.live_trades_info.pop(market, None)
 
     def handle_trade_updates(self):
+        pass
 
-        for i in self.live_trades_info:
+        """for i in self.live_trades_info:
             if self.live_trades_info[i][1] >= self.SR_levels['R1'] and self.live_trades_info[2] == 'buy':
                 update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
             elif self.live_trades_info[i][1] <= self.SR_levels['S1'] and self.live_trades_info[2] == 'sell':
-                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
+                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)"""
 
 
 def handle_webhook_data(data: str = None):
@@ -128,13 +129,13 @@ def handle_webhook_data(data: str = None):
 
 
 def live_trade_price_data(client: FtxClient):
+    logging.info('bot starting live price data thread')
     while True:
         for i in client.get_positions():
             if i['size'] > 0:
                 bot.update_trade_info(market=i['future'], price=client.get_single_market(market=i['future'])['last'])
             else:
                 bot.remove_trade_info(market=i['future'])
-        time.sleep(1)
 
 
 def start_bot():
