@@ -1,6 +1,8 @@
 import os
 import logging
 import sys
+import threading
+import time
 
 from dotenv import load_dotenv
 
@@ -31,6 +33,8 @@ class Bot:
         self.tradingViewInfo = None
         self.accRisk = 0.02
         self.port = 0
+        self.live_trades_info = {}
+        self.SR_levels = {'AVG': None, 'R1': None, 'R2': None, 'S1': None, '21': None}
         
         for i in client.get_balances():
             self.port += i['total']
@@ -83,7 +87,10 @@ class Bot:
                                      acc_risk=self.accRisk, sl=sl)
             enter_buy(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
                       sl=sl, tp=tp, client=client)
-
+            self.live_trades_info[self.tradingViewInfo[0]] = []
+            self.live_trades_info[self.tradingViewInfo[0]].append(self.tradingViewInfo[2])
+            self.live_trades_info[self.tradingViewInfo[0]].append(None)
+            self.live_trades_info[self.tradingViewInfo[0]].append('buy')
             logging.info('bot1 entered buy at: ' + self.tradingViewInfo[2])
 
         elif self.botInfo[0] == "DT" and self.botInfo[1] == "CD" and self.tradingViewInfo[1] == "OD" and\
@@ -94,12 +101,45 @@ class Bot:
                                      acc_risk=self.accRisk, sl=sl)
             enter_sell(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
                        sl=sl, tp=tp, client=client)
+            self.live_trades_info[self.tradingViewInfo[0]] = []
+            self.live_trades_info[self.tradingViewInfo[0]].append(self.tradingViewInfo[2])
+            self.live_trades_info[self.tradingViewInfo[0]].append(None)
+            self.live_trades_info[self.tradingViewInfo[0]].append('sell')
+            logging.info('bot1 entered sell at: ', self.tradingViewInfo[2])
 
-            logging.info('bot1 exit sell at: ', self.tradingViewInfo[2])
+    def update_trade_info(self, market: str, price: float):
+        self.live_trades_info[market][1] = price
+        self.handle_trade_updates()
+
+    def remove_trade_info(self, market: str):
+        self.live_trades_info.pop(market, None)
+
+    def handle_trade_updates(self):
+
+        for i in self.live_trades_info:
+            if self.live_trades_info[i][1] >= self.SR_levels['R1'] and self.live_trades_info[2] == 'buy':
+                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
+            elif self.live_trades_info[i][1] <= self.SR_levels['S1'] and self.live_trades_info[2] == 'sell':
+                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
 
 
 def handle_webhook_data(data: str = None):
     bot.update(data)
+
+
+def live_trade_price_data(client: FtxClient):
+
+    while True:
+        for i in client.get_positions():
+            if i['size'] > 0:
+                bot.update_trade_info(market=i['future'], price=client.get_single_market(market=i['future'])['last'])
+            else:
+                bot.remove_trade_info(market=i['future'])
+        time.sleep(1)
+
+
+def start_bot():
+    threading.Thread(target=live_trade_price_data(client=client)).start()
 
 
 bot = Bot()
