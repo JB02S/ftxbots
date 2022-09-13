@@ -1,8 +1,8 @@
 from threading import Thread
 from flask import Flask, request, abort
-from bots import bot1
+from bots import botmanager
 
-t1 = Thread(target=bot1.start_bot)
+t1 = Thread(target=botmanager.start_price_data_thread)
 t1.setDaemon(True)
 t1.start()
 
@@ -13,7 +13,7 @@ app = Flask(__name__)
 def webhook():
     if request.method == 'POST':
         alert_data = str(request.data)[2:-1]
-        bot1.handle_webhook_data(data=alert_data)
+        botmanager.handle_webhook_data(data=alert_data)
         return 'success', 200
     else:
         abort(400)
