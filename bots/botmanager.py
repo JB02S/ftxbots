@@ -23,7 +23,7 @@ bot1 = Bot1(client_reference=client)
 
 bot_arr = [bot1]
 
-c
+
 def live_trade_price_data(client: FtxClient):
     logging.info('bot starting live price data thread')
 
