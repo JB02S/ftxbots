@@ -8,6 +8,10 @@ t1.start()
 
 app = Flask(__name__)
 
+@app.route('/')
+def test():
+    botmanager.handle_webhook_data(data="bot1 BTCPERP OD 20217")
+    return 'success', 200
 
 @app.route('/webhook', methods=['POST'])
 def webhook():

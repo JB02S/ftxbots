@@ -1,24 +1,12 @@
-import os
 import logging
 from typing import List
 
-from dotenv import load_dotenv
-
 from ftx.tradingfunctions import *
-
-#from ftx.sqlfunctions import insert_into_trade_table
-
-load_dotenv()
-
-api_key = os.getenv('api_key_main')
-api_secret = os.getenv('api_secret_main')
-
-client = FtxClient(api_key=api_key, api_secret=api_secret, subaccount_name='bot1')
 
 
 class Bot1:
     
-    def __init__(self, client_reference: FtxClient):
+    def __init__(self, api_key, api_secret):
 
         self.botInfo = [input("Most recent type of confirmation signal? UT or DT?"),
                         input("Trend catcher state? CD for red or CU for green.")]
@@ -27,37 +15,35 @@ class Bot1:
         self.name = 'bot1'
         self.port = 0
         self.live_trades_info = {}
-        self.client = client_reference
+        self.client = FtxClient(api_key=api_key, api_secret=api_secret, subaccount_name='bot1')
         self.SR_levels = {'AVG': None, 'R1': None, 'R2': None, 'S1': None, '21': None}
         
-        for i in client.get_balances():
+        for i in self.client.get_balances():
             self.port += i['total']
 
     def update(self, data: List[str]):
         logging.info('bot1 received info from T V alert')
         self.tradingViewInfo = data
-        self.tradingViewInfo[0] = self.tradingViewInfo[0][:-4]
-        self.tradingViewInfo[2] = int(self.tradingViewInfo[2])
         pos = 0
 
-        for i in client.get_positions():
+        for i in self.client.get_positions():
             if i['future'] == f'{self.tradingViewInfo[0]}-PERP':
                 pos = i['size']
 
-        if len(self.tradingViewInfo) == 4:
-            if self.tradingViewInfo[1][0] == "C":
-                self.botInfo[1] = self.tradingViewInfo[1]
-            else:
-                self.botInfo[0] = self.tradingViewInfo[1]
+        "MARKET SIGNAL CLOSE"
+        if self.tradingViewInfo[1][0] == "C":
+            self.botInfo[1] = self.tradingViewInfo[1]
+        elif self.tradingViewInfo[1][1] == "T":
+            self.botInfo[0] = self.tradingViewInfo[1]
 
         if (self.tradingViewInfo[1] == "UT" or self.tradingViewInfo[1] == "ES") and\
                 pos < 0:
-            exit_trade(self.tradingViewInfo[0], 'sell', client)
+            exit_trade(self.tradingViewInfo[0], 'sell', self.client)
             logging.info(f'bot1 exit sell at: {self.tradingViewInfo[2]}')
             
         elif (self.tradingViewInfo[1] == "DT" or self.tradingViewInfo[1] == "EB") and\
                 pos > 0:
-            exit_trade(self.tradingViewInfo[0], 'buy', client)
+            exit_trade(self.tradingViewInfo[0], 'buy', self.client)
             logging.info(f'bot1 exit buy at: {self.tradingViewInfo[2]}')
 
         if self.tradingViewInfo[1] == "OU":
@@ -69,17 +55,17 @@ class Bot1:
 
         self.port = 0
         
-        for i in client.get_balances():
+        for i in self.client.get_balances():
             self.port += i['total']
 
         if self.botInfo[0] == "UT" and self.botInfo[1] == "CU" and self.tradingViewInfo[1] == "OU" and\
-                client.get_positions()[0]['size'] == 0:
+                self.client.get_positions()[0]['size'] == 0:
             sl = calc_sl(self.tradingViewInfo[2], 'buy', 1)
             tp = calc_tp(self.tradingViewInfo[2], 'buy', 1)
             pos_size = calc_pos_size(port=self.port, entry_price=self.tradingViewInfo[2], side='buy',
                                      acc_risk=self.accRisk, sl=sl)
             enter_buy(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
-                      sl=sl, tp=tp, client=client)
+                      sl=sl, tp=tp, client=self.client)
             self.live_trades_info[self.tradingViewInfo[0]] = []
             self.live_trades_info[self.tradingViewInfo[0]].append(self.tradingViewInfo[2])
             self.live_trades_info[self.tradingViewInfo[0]].append(None)
@@ -87,13 +73,13 @@ class Bot1:
             logging.info(f'bot1 entered buy at: {self.tradingViewInfo[2]}')
 
         elif self.botInfo[0] == "DT" and self.botInfo[1] == "CD" and self.tradingViewInfo[1] == "OD" and\
-                client.get_positions()[0]['size'] == 0:
+                self.client.get_positions()[0]['size'] == 0:
             sl = calc_sl(self.tradingViewInfo[2], 'sell', 1)
             tp = calc_tp(self.tradingViewInfo[2], 'sell', 1)
             pos_size = calc_pos_size(port=self.port, entry_price=self.tradingViewInfo[2], side='sell',
                                      acc_risk=self.accRisk, sl=sl)
             enter_sell(market=self.tradingViewInfo[0], price=self.tradingViewInfo[2], size=pos_size,
-                       sl=sl, tp=tp, client=client)
+                       sl=sl, tp=tp, client=self.client)
             self.live_trades_info[self.tradingViewInfo[0]] = [None, None, None]
             self.live_trades_info[self.tradingViewInfo[0]][0] = self.tradingViewInfo[2]
             self.live_trades_info[self.tradingViewInfo[0]].append('sell')
@@ -110,7 +96,7 @@ class Bot1:
     def handle_trade_updates(self):
         for i in self.live_trades_info:
             if (self.live_trades_info[i][1] - self.live_trades_info[i][0]) * 100 > 0.5:
-                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
+                update_sl(market=i, new_sl=self.live_trades_info[i][0], client=self.client)
         """for i in self.live_trades_info:
             if self.live_trades_info[i][1] >= self.SR_levels['R1'] and self.live_trades_info[2] == 'buy':
                 update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)
@@ -118,4 +104,4 @@ class Bot1:
                 update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)"""
 
     def toString(self):
-        return self.toString()
+        return "bot1"

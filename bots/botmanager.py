@@ -4,6 +4,7 @@ import sys
 import threading
 
 from bots.bot1 import Bot1
+from bots.bot2 import Bot2
 from ftx.rest.client import FtxClient
 
 api_key = os.getenv('api_key_main')
@@ -19,9 +20,10 @@ else:
 logging.basicConfig(filename=logfile_path, level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:%(message)s')
 
-bot1 = Bot1(client_reference=client)
+bot1 = Bot1(api_key, api_secret)
+bot2 = Bot2(api_key, api_secret)
 
-bot_arr = [bot1]
+bot_arr = [bot1, bot2]
 
 
 def live_trade_price_data(client: FtxClient):
@@ -45,6 +47,6 @@ def handle_webhook_data(data: str):
     data_arr[1] = data_arr[1][:-4]
     data_arr[3] = int(data_arr[3])
     for bots in bot_arr:
-        if bots.toString == data[0]:
+        if bots.toString() == data_arr[0]:
             data_arr.pop(0)
             bots.update(data_arr)
