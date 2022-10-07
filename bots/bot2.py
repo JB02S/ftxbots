@@ -10,5 +10,8 @@ class Bot2:
         for i in self.client.get_balances():
             self.port += i['total']
 
+    def start_bot(self):
+        pass
+
     def toString(self):
         return "bot2"
