@@ -13,5 +13,5 @@ class Bot2:
     def start_bot(self):
         pass
 
-    def toString(self):
+    def to_string(self):
         return "bot2"

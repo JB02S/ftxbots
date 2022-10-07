@@ -8,8 +8,8 @@ class Bot1:
     
     def __init__(self, api_key, api_secret):
 
-        self.botInfo = [input("Most recent type of confirmation signal? UT or DT?"),
-                        input("Trend catcher state? CD for red or CU for green.")]
+        self.botInfo = [input("Bot 1 asks, what is the most recent type of confirmation signal? UT for buy or DT for sell?"),
+                        input("Bot 1 asks, what is the current trend catcher state? CD for red or CU for green.")]
         self.tradingViewInfo = None
         self.accRisk = 0.02
         self.name = 'bot1'
@@ -103,5 +103,8 @@ class Bot1:
             elif self.live_trades_info[i][1] <= self.SR_levels['S1'] and self.live_trades_info[2] == 'sell':
                 update_sl(market=i, new_sl=self.live_trades_info[i][0], client=client)"""
 
-    def toString(self):
+    def start_bot(self):
+        pass
+
+    def to_string(self):
         return "bot1"
