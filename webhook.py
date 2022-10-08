@@ -1,6 +1,6 @@
 from threading import Thread
 from flask import Flask, request, abort
-from bots import botmanager
+import botmanager
 
 t1 = Thread(target=botmanager.start_price_data_thread)
 t1.setDaemon(True)

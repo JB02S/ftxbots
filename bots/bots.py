@@ -1,10 +1,12 @@
 import logging
 from typing import List
 
+from ftx.indicators import *
 from ftx.tradingfunctions import *
 
+live_sma = liveSMA()
 
-class Bot1:
+class Bot1():
     
     def __init__(self, api_key, api_secret):
 
@@ -108,3 +110,21 @@ class Bot1:
 
     def to_string(self):
         return "bot1"
+
+
+class Bot2():
+
+    def __init__(self, api_key, api_secret):
+        self.client = FtxClient(api_key=api_key, api_secret=api_secret, subaccount_name='bot2')
+        self.port = 0
+        self.price_data = None
+
+        for i in self.client.get_balances():
+            self.port += i['total']
+
+    def start_bot(self):
+        live_sma.attach(self)
+
+    def to_string(self):
+
+        return "bot2"
